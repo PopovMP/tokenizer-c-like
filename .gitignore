@@ -1,0 +1,13 @@
+# Node modules
+node_modules/
+
+# Build output
+dist/*
+!dist/.gitkeep
+
+# IDE files
+.vscode
+.idea
+
+# TypeScript cache
+*.tsbuildinfo

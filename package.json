@@ -1,0 +1,40 @@
+{
+  "name": "tokenizer-c-like",
+  "version": "0.1.0",
+  "description": "Tokenizer for a C-like language",
+  "keywords": ["tokenizer"],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:PopovMP/tokenizer-c-like.git"
+  },
+  "license": "ISC",
+  "author": "PopovMP",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.cjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "check": "tsc -p tsconfig.json",
+    "lint": "eslint --ext .ts src/**/* test/**/*",
+    "test": "node --experimental-strip-types --experimental-transform-types --test",
+    "build": "tsc && esbuild ./src/tokenizer.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs && esbuild ./src/tokenizer.ts --bundle --platform=node --format=esm --outfile=dist/index.mjs",
+    "dts": "dts-bundle-generator --out-file ./dist/index.d.ts --no-banner --project ./tsconfig.json ./src/tokenizer.ts",
+    "prepublishOnly": "npm run check && npm run lint && npm run test && npm run build && npm run dts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "@types/node": "^22.15.21",
+    "dts-bundle-generator": "^9.5.1",
+    "esbuild": "^0.25.4",
+    "eslint": "^9.27.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1"
+  }
+}
