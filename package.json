@@ -1,6 +1,6 @@
 {
   "name": "tokenizer-c-like",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tokenizer for a C-like language",
   "keywords": ["tokenizer"],
   "repository": {
