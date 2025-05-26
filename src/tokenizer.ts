@@ -50,7 +50,7 @@ export function tokenize(src: string): IToken[] {
       getNumber          (src, index, pos) ||
       getPunctuator      (src, index, pos) ||
       getWord            (src, index, pos) ||
-      getError(src, "Cannot parse token", index, pos);
+      getError           (src, index, pos, "Cannot parse token");
 
     tokens.push(res.token);
     index = res.i;
@@ -70,11 +70,11 @@ function getEndOfLine(src: string, i: number, pos: IPos): ITokenRes | null {
   if (src[i] === "\r" && src[i+1] === "\n") {
     token.val = "\r\n";
     i += 2;
-  } else if (src[i] === "\n"){
+  } else if (src[i] === "\n") {
     token.val = src[i];
     i++;
   } else {
-    return getError(src, "End of Line cannot be CR", i, pos);
+    return getError(src, i, pos, "End of Line cannot be CR");
   }
 
   pos.col = 0;
@@ -89,8 +89,6 @@ function getWhitespace(src: string, i: number, pos: IPos): ITokenRes | null {
   const token: IToken = { row: pos.row, col: pos.col, kind: ETokenKind.Whitespace, val: "" };
 
   while (i < src.length && whitespaces.includes(src[i])) {
-    if (src[i] === "\r" || src[i] === "\n") break;
-
     token.val += src[i];
     pos.col++;
     i++;
@@ -112,7 +110,7 @@ function getPreprocessor(src: string, i: number, pos: IPos): ITokenRes | null {
   const word = src.substring(startIndex, i);
 
   if (!preprocessors.includes(word)) {
-    return getError(src, "Unknown preprocessor directive", i, pos);
+    return getError(src, i, pos, "Unknown preprocessor directive");
   }
 
   // Collect the rest of the directive, handling line continuations
@@ -180,7 +178,7 @@ function getCharacter(src: string, i: number, pos: IPos): ITokenRes | null {
   i++;
 
   if (src[i] === "'") {
-    return getError(src, "Empty character literal", i, pos);
+    return getError(src, i, pos, "Empty character literal");
   }
 
   // Handle escape sequences
@@ -189,7 +187,7 @@ function getCharacter(src: string, i: number, pos: IPos): ITokenRes | null {
     pos.col++;
     i++;
     if (i >= src.length) {
-      return getError(src, "Unclosed character literal", i, pos);
+      return getError(src, i, pos, "Unclosed character literal");
     }
     // Accept any escape character (for simplicity, you can add stricter checks if needed)
     token.val += src[i];
@@ -203,7 +201,7 @@ function getCharacter(src: string, i: number, pos: IPos): ITokenRes | null {
   }
 
   if (src[i] !== "'") {
-    return getError(src, "Unclosed or multi-character literal", i, pos);
+    return getError(src, i, pos, "Unclosed or multi-character literal");
   }
 
   token.val += src[i];
@@ -227,7 +225,7 @@ function getString(src: string, i: number, pos: IPos): ITokenRes | null {
       pos.col++;
       i++;
       if (i >= src.length) {
-        return getError(src, "Unclosed string literal", i, pos);
+        return getError(src, i, pos, "Unclosed string literal");
       }
       // Accept any escape character (for simplicity, you can add stricter checks if needed)
       token.val += src[i];
@@ -240,7 +238,7 @@ function getString(src: string, i: number, pos: IPos): ITokenRes | null {
       break;
     }
     if (src[i] === "\n" || src[i] === "\r") {
-      return getError(src, "Unclosed string literal (newline)", i, pos);
+      return getError(src, i, pos, "Unclosed string literal (newline)");
     }
     token.val += src[i];
     pos.col++;
@@ -248,7 +246,7 @@ function getString(src: string, i: number, pos: IPos): ITokenRes | null {
   }
 
   if (src[i] !== "\"") {
-    return getError(src, "Unclosed string literal", i, pos);
+    return getError(src, i, pos, "Unclosed string literal");
   }
 
   pos.col++;
@@ -278,7 +276,7 @@ function getBinaryNumber(src: string, i: number, pos: IPos): ITokenRes | null {
   }
 
   if (!oneCharPuncts.includes(src[i]) && !numberDelims.includes(src[i]) || src[i] === ".") {
-    return getError(src, `Wrong number delimiter (${src[i]})`, i+1, pos);
+    return getError(src, i + 1, pos, `Wrong number delimiter (${src[i]})`);
   }
 
   return { i, token };
@@ -306,7 +304,7 @@ function getOctalNumber(src: string, i: number, pos: IPos): ITokenRes | null {
   }
 
   if (!oneCharPuncts.includes(src[i]) && !numberDelims.includes(src[i]) || src[i] === ".") {
-    return getError(src, `Wrong number delimiter (${src[i]})`, i+1, pos);
+    return getError(src, i + 1, pos, `Wrong number delimiter (${src[i]})`);
   }
 
   return { i, token };
@@ -334,7 +332,7 @@ function getHexNumber(src: string, i: number, pos: IPos): ITokenRes | null {
   }
 
   if (!oneCharPuncts.includes(src[i]) && !numberDelims.includes(src[i]) || src[i] === ".") {
-    return getError(src, `Wrong number delimiter (${src[i]})`, i+1, pos);
+    return getError(src, i + 1, pos, `Wrong number delimiter (${src[i]})`);
   }
 
   return { i, token };
@@ -356,7 +354,7 @@ function getMultilineComment(src: string, i: number, pos: IPos): ITokenRes | nul
     }
 
     if (i >= src.length) {
-      return getError(src, "Unclosed multiline comment", i, pos);
+      return getError(src, i, pos, "Unclosed multiline comment");
     }
 
     if (src[i] === "\n") {
@@ -386,19 +384,16 @@ function getNumber(src: string, i: number, pos: IPos): ITokenRes | null {
   while (i < src.length) {
     if (src[i] === ".") {
       if (hasDot) {
-        i++;
-        return getError(src, "Too many dots in a float", i, pos);
+        return getError(src, i + 1, pos, "Too many dots in a float");
       }
       hasDot = true;
     } else if (src[i] === "e" || src[i] === "E") {
       if (hasE) {
-        i++;
-        return getError(src, "Too many 'e's in a number", i, pos);
+        return getError(src, i + 1, pos, "Too many 'e's in a number");
       }
 
       if (i === src.length - 1) {
-        i++;
-        return getError(src, "EOF after 'e' in a number", i, pos);
+        return getError(src, i + 1, pos, "EOF after 'e' in a number");
       }
       i++;
 
@@ -408,8 +403,7 @@ function getNumber(src: string, i: number, pos: IPos): ITokenRes | null {
       }
 
       if (src.charCodeAt(i) < "0".charCodeAt(0) || src.charCodeAt(i) > "9".charCodeAt(0)) {
-        i++;
-        return getError(src, "No digits after 'e' in a number", i, pos);
+        return getError(src, i + 1, pos, "No digits after 'e' in a number");
       }
 
       hasE = true;
@@ -431,17 +425,16 @@ function getNumber(src: string, i: number, pos: IPos): ITokenRes | null {
       break;
     }
   }
-  // Only allow valid suffix combinations (optional, for stricter C compliance)
 
   const len = i - startIndex;
   if (len > 1 && src[startIndex] === "0" &&
       src.charCodeAt(startIndex + 1) >= "0".charCodeAt(0) &&
       src.charCodeAt(startIndex + 1) <= "9".charCodeAt(0)) {
-    return getError(src, "Leading zero", i, pos);
+    return getError(src, i, pos, "Leading zero");
   }
 
   if (!oneCharPuncts.includes(src[i]) && !numberDelims.includes(src[i]) || src[i] === ".") {
-    return getError(src, `Wrong number delimiter (${src[i]})`, i+1, pos);
+    return getError(src, i + 1, pos, `Wrong number delimiter (${src[i]})`);
   }
 
   const token: IToken = {
@@ -507,7 +500,7 @@ function getWord(src: string, i: number, pos: IPos): ITokenRes | null {
   return { i, token };
 }
 
-function getError(src: string, msg: string, i: number, pos: IPos):  ITokenRes {
+function getError(src: string, i: number, pos: IPos, msg: string):  ITokenRes {
   let startIndex: number = i;
   let endIndex  : number = i;
   while (startIndex > 0 && src[startIndex] !== "\n") {
@@ -518,11 +511,11 @@ function getError(src: string, msg: string, i: number, pos: IPos):  ITokenRes {
   }
 
   console.log();
-  const position = Math.max(i - startIndex, 1);
+  const padLen = Math.max(i - startIndex - 1, 0);
   console.log(src.slice(startIndex, endIndex));
-  console.log(" ".repeat(position - 1) + "^");
-  if (position > 1) {
-    console.log("-".repeat(position - 1) + "+");
+  console.log(" ".repeat(padLen) + "^");
+  if (padLen > 0) {
+    console.log("-".repeat(padLen) + "+");
   }
   console.log(`${msg}:${pos.row + 1}:${pos.col + 1}`);
 
