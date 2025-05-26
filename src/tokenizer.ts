@@ -33,29 +33,27 @@ interface IPos {
 export function tokenize(src: string): IToken[] {
   const tokens: IToken[] = [];
   const pos   : IPos     = { row: 0, col: 0 };
+
   let index = 0;
-
   while (index < src.length) {
-    let res: ITokenRes | null = null;
+    const res: ITokenRes =
+      getEndOfLine       (src, index, pos) ||
+      getWhitespace      (src, index, pos) ||
+      getPreprocessor    (src, index, pos) ||
+      getLineComment     (src, index, pos) ||
+      getMultilineComment(src, index, pos) ||
+      getCharacter       (src, index, pos) ||
+      getString          (src, index, pos) ||
+      getBinaryNumber    (src, index, pos) ||
+      getHexNumber       (src, index, pos) ||
+      getOctalNumber     (src, index, pos) ||
+      getNumber          (src, index, pos) ||
+      getPunctuator      (src, index, pos) ||
+      getWord            (src, index, pos) ||
+      getError(src, "Cannot parse token", index, pos);
 
-    if (!res) res = getEndOfLine       (src, index, pos);
-    if (!res) res = getWhitespace      (src, index, pos);
-    if (!res) res = getPreprocessor    (src, index, pos);
-    if (!res) res = getLineComment     (src, index, pos);
-    if (!res) res = getMultilineComment(src, index, pos);
-    if (!res) res = getCharacter       (src, index, pos);
-    if (!res) res = getString          (src, index, pos);
-    if (!res) res = getBinaryNumber    (src, index, pos);
-    if (!res) res = getHexNumber       (src, index, pos);
-    if (!res) res = getOctalNumber     (src, index, pos);
-    if (!res) res = getNumber          (src, index, pos);
-    if (!res) res = getPunctuator      (src, index, pos);
-    if (!res) res = getWord            (src, index, pos);
-
-    if (!res) res = getError(src, "Cannot parse token", index, pos);
-
-    index = res.i;
     tokens.push(res.token);
+    index = res.i;
   }
 
   const eof: IToken = { row: pos.row, col: pos.col, kind: ETokenKind.EOF, val: "" };
