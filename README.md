@@ -5,7 +5,7 @@
 ## Usage:
 
 ```ts
-import { tokenize, dumpTokens, ETokenKind } from "../dist/index.mjs";
+import { tokenize, dumpTokens, ETokenKind } from "tokenizer-c-like";
 
 // Tokenize
 const tokens = tokenize(sourceCode);
