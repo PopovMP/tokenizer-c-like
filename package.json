@@ -2,7 +2,9 @@
   "name": "tokenizer-c-like",
   "version": "0.1.1",
   "description": "Tokenizer for a C-like language",
-  "keywords": ["tokenizer"],
+  "keywords": [
+    "tokenizer"
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.com:PopovMP/tokenizer-c-like.git"
@@ -30,11 +32,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
-    "@types/node": "^22.15.21",
+    "@types/node": "^22.15.32",
     "dts-bundle-generator": "^9.5.1",
-    "esbuild": "^0.25.4",
-    "eslint": "^9.27.0",
+    "esbuild": "^0.25.5",
+    "eslint": "^9.29.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.32.1"
+    "typescript-eslint": "^8.34.1"
   }
 }
