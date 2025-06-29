@@ -22,7 +22,6 @@ describe("006 getWord", () => {
     strictEqual(tokens[4].kind, ETokenKind.Word);
   });
 
-
   it("several variables", () => {
     const tokens: IToken[] = tokenize("foo = a + b;");
     strictEqual(tokens[0].val, "foo");

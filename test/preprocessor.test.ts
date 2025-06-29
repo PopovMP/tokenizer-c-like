@@ -12,7 +12,6 @@ describe("getPreprocessor", () => {
     strictEqual(tokens[0].kind, ETokenKind.Preprocessor);
   });
 
-
   it("Unknown preprocessor directive", () => {
     const tokens: IToken[] = tokenize("#Foo;");
     strictEqual(tokens[0].val, "Unknown preprocessor directive");

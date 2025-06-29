@@ -535,7 +535,7 @@ export function dumpTokens(tokens: IToken[]): void {
     const rowNumTxt = ((token.row + 1).toString() + ",").padEnd(6, " ");
     const colNumTxt = (token.col + 1).toString().padEnd(3, " ");
     const tokenName = ETokenKind[token.kind].padEnd(16, " ");
-    const tokenVal  =  token.val.replaceAll("\r", "CR").replaceAll("\n", "CN");
+    const tokenVal  = token.val.replaceAll("\r", "CR").replaceAll("\n", "CN");
     console.log(`[${rowNumTxt}${colNumTxt}] ${tokenName}: ${tokenVal}`);
   }
 }
